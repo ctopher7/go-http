@@ -2,10 +2,12 @@ package impl
 
 import (
 	"context"
+	"database/sql"
 	"errors"
 	"reflect"
 	"testing"
 
+	"example.com/m/v2/constant"
 	repo "example.com/m/v2/logic/repository"
 	"example.com/m/v2/model"
 	"example.com/m/v2/util"
@@ -157,6 +159,202 @@ func Test_UserLogin(t *testing.T) {
 			}
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("UserLogin test failed. want: %+v, got: %+v", tt.want, got)
+			}
+		})
+	}
+}
+
+func Test_UserRegister(t *testing.T) {
+	repoMock := new(repo.MockRepository)
+
+	type args struct {
+		user model.User
+	}
+
+	req := args{
+		user: model.User{
+			Email:    "tes",
+			Password: "tes",
+		},
+	}
+
+	tests := []struct {
+		name    string
+		mock    func()
+		args    args
+		wantErr error
+	}{
+		{
+			name: "fail BcryptGenerateHash",
+			mock: func() {
+				repoMock.
+					On("BcryptGenerateHash", []byte("tes")).
+					Return([]byte(""), errors.New("err BcryptGenerateHash")).
+					Once()
+			},
+			args:    req,
+			wantErr: errors.New("err BcryptGenerateHash"),
+		},
+		{
+			name: "fail beginTx",
+			mock: func() {
+				repoMock.
+					On("BcryptGenerateHash", []byte("tes")).
+					Return([]byte("tes"), nil).
+					Once()
+
+				repoMock.
+					On("BeginTx", context.Background()).
+					Return(nil, errors.New("err beginTx")).
+					Once()
+			},
+			args:    req,
+			wantErr: errors.New("err beginTx"),
+		},
+		{
+			name: "fail InsertUser",
+			mock: func() {
+				repoMock.
+					On("BcryptGenerateHash", []byte("tes")).
+					Return([]byte("tes"), nil).
+					Once()
+
+				repoMock.
+					On("BeginTx", context.Background()).
+					Return(&sql.Tx{}, nil).
+					Once()
+
+				repoMock.
+					On("RollbackTx", &sql.Tx{}).
+					Return(nil).
+					Once()
+
+				repoMock.
+					On("InsertUser", context.Background(), &sql.Tx{}, model.User{
+						Email:    "tes",
+						Password: "tes",
+						Role:     constant.CustomerRole,
+					}).
+					Return(int64(0), errors.New("err InsertUser")).
+					Once()
+			},
+			args:    req,
+			wantErr: errors.New("err InsertUser"),
+		},
+		{
+			name: "user not created",
+			mock: func() {
+				repoMock.
+					On("BcryptGenerateHash", []byte("tes")).
+					Return([]byte("tes"), nil).
+					Once()
+
+				repoMock.
+					On("BeginTx", context.Background()).
+					Return(&sql.Tx{}, nil).
+					Once()
+
+				repoMock.
+					On("RollbackTx", &sql.Tx{}).
+					Return(nil).
+					Once()
+
+				repoMock.
+					On("InsertUser", context.Background(), &sql.Tx{}, model.User{
+						Email:    "tes",
+						Password: "tes",
+						Role:     constant.CustomerRole,
+					}).
+					Return(int64(0), nil).
+					Once()
+			},
+			args:    req,
+			wantErr: errors.New("failed create user"),
+		},
+		{
+			name: "fail CommitTx",
+			mock: func() {
+				repoMock.
+					On("BcryptGenerateHash", []byte("tes")).
+					Return([]byte("tes"), nil).
+					Once()
+
+				repoMock.
+					On("BeginTx", context.Background()).
+					Return(&sql.Tx{}, nil).
+					Once()
+
+				repoMock.
+					On("RollbackTx", &sql.Tx{}).
+					Return(nil).
+					Once()
+
+				repoMock.
+					On("InsertUser", context.Background(), &sql.Tx{}, model.User{
+						Email:    "tes",
+						Password: "tes",
+						Role:     constant.CustomerRole,
+					}).
+					Return(int64(1), nil).
+					Once()
+
+				repoMock.
+					On("CommitTx", &sql.Tx{}).
+					Return(errors.New("err CommitTx")).
+					Once()
+			},
+			args:    req,
+			wantErr: errors.New("err CommitTx"),
+		},
+		{
+			name: "success",
+			mock: func() {
+				repoMock.
+					On("BcryptGenerateHash", []byte("tes")).
+					Return([]byte("tes"), nil).
+					Once()
+
+				repoMock.
+					On("BeginTx", context.Background()).
+					Return(&sql.Tx{}, nil).
+					Once()
+
+				repoMock.
+					On("RollbackTx", &sql.Tx{}).
+					Return(nil).
+					Once()
+
+				repoMock.
+					On("InsertUser", context.Background(), &sql.Tx{}, model.User{
+						Email:    "tes",
+						Password: "tes",
+						Role:     constant.CustomerRole,
+					}).
+					Return(int64(1), nil).
+					Once()
+
+				repoMock.
+					On("CommitTx", &sql.Tx{}).
+					Return(nil).
+					Once()
+			},
+			args: req,
+		},
+	}
+
+	for _, tt := range tests {
+		u := usecase{
+			repository: repoMock,
+		}
+
+		t.Run(tt.name, func(t *testing.T) {
+			if tt.mock != nil {
+				tt.mock()
+			}
+
+			err := u.UserRegister(context.Background(), req.user)
+			if !util.SameErrorMessage(err, tt.wantErr) {
+				t.Errorf("UserRegister test failed. wantErr: %+v, gotErr: %+v", tt.wantErr, err)
 			}
 		})
 	}

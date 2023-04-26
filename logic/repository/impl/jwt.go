@@ -10,5 +10,5 @@ func (r *repository) JwtNew(claim jwt.MapClaims) *jwt.Token {
 }
 
 func (r *repository) JwtSign(token *jwt.Token) (string, error) {
-	return token.SignedString(constant.JwtSecret)
+	return token.SignedString([]byte(constant.JwtSecret))
 }

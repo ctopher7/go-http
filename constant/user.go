@@ -1,5 +1,7 @@
 package constant
 
 const (
-	JwtSecret = "hmacSampleSecret"
+	JwtSecret    = "hmacSampleSecret"
+	CustomerRole = "CUSTOMER"
+	AdminRole    = "ADMIN"
 )

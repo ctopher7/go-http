@@ -27,6 +27,50 @@ func Migrate(res *resource.Resource) {
 	if err != nil {
 		fmt.Println(err)
 	}
+
+	_, err = res.PostgresDb.Query(`
+		CREATE TYPE LoanStatus AS ENUM ('PENDING','APPROVED','PAID');
+	`)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	_, err = res.PostgresDb.Query(`
+		CREATE TABLE IF NOT EXISTS loans(
+			id BIGSERIAL PRIMARY KEY,
+			user_id BIGINT,
+			amount NUMERIC,
+			status LoanStatus,
+			created_at TIMESTAMPTZ,
+			updated_at TIMESTAMPTZ
+		);
+	`)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	_, err = res.PostgresDb.Query(`
+		CREATE TYPE RepaymentStatus AS ENUM ('PENDING','PAID');
+	`)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	_, err = res.PostgresDb.Query(`
+		CREATE TABLE IF NOT EXISTS repayments(
+			id BIGSERIAL PRIMARY KEY,
+			loan_id BIGINT,
+			minimum_payment NUMERIC,
+			actual_payment NUMERIC,
+			status RepaymentStatus,
+			due_date TIMESTAMPTZ,
+			created_at TIMESTAMPTZ,
+			updated_at TIMESTAMPTZ
+		);
+	`)
+	if err != nil {
+		fmt.Println(err)
+	}
 }
 
 func Seed(res *resource.Resource) {
