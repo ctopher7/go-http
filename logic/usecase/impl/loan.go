@@ -149,7 +149,7 @@ func (u *usecase) PayLoan(ctx context.Context, amount float64, loanId, term, use
 				pay := float64(0)
 				err = u.repository.UpdateRepayment(ctx, tx, model.Repayment{
 					Id:            repayment.Id,
-					Status:        constant.LoanStatusPaid,
+					Status:        constant.RepaymentStatusPaid,
 					ActualPayment: &pay,
 				})
 				if err != nil {
@@ -161,7 +161,7 @@ func (u *usecase) PayLoan(ctx context.Context, amount float64, loanId, term, use
 
 	err = u.repository.UpdateRepayment(ctx, tx, model.Repayment{
 		Id:            repaymentData.Id,
-		Status:        constant.LoanStatusPaid,
+		Status:        constant.RepaymentStatusPaid,
 		ActualPayment: &amount,
 	})
 	if err != nil {
@@ -175,6 +175,9 @@ func (u *usecase) PayLoan(ctx context.Context, amount float64, loanId, term, use
 
 func (u *usecase) GetLoan(ctx context.Context, userId int64) (loans []model.Loan, err error) {
 	loans, err = u.repository.GetLoanByUserId(ctx, userId)
+	if err != nil {
+		return
+	}
 
 	tasks := make(chan model.AsyncTaskRes)
 	for idx, loan := range loans {

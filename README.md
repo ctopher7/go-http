@@ -16,6 +16,7 @@ Created by Christopher Tok for the use of Aspire job application.
 - run ``` go run main.go development seed ``` for seed admin data (email: admin@admin.com, password: admin)
 - run ``` go run main.go development server ```
 - connect to ``` localhost:8000 ``` using your rest api client
+- run ``` go test ./... -cover ``` for test
 
 ### API
 - register (POST /user/register)
