@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"net/http"
 	"reflect"
 	"testing"
 
@@ -153,7 +154,7 @@ func Test_UserLogin(t *testing.T) {
 				tt.mock()
 			}
 
-			got, err := u.UserLogin(context.Background(), req.email, req.pass)
+			got, err := u.UserLogin(context.Background(), tt.args.email, tt.args.pass)
 			if !util.SameErrorMessage(err, tt.wantErr) {
 				t.Errorf("UserLogin test failed. wantErr: %+v, gotErr: %+v", tt.wantErr, err)
 			}
@@ -352,9 +353,92 @@ func Test_UserRegister(t *testing.T) {
 				tt.mock()
 			}
 
-			err := u.UserRegister(context.Background(), req.user)
+			err := u.UserRegister(context.Background(), tt.args.user)
 			if !util.SameErrorMessage(err, tt.wantErr) {
 				t.Errorf("UserRegister test failed. wantErr: %+v, gotErr: %+v", tt.wantErr, err)
+			}
+		})
+	}
+}
+
+func Test_DecodeJwt(t *testing.T) {
+	repoMock := new(repo.MockRepository)
+
+	type args struct {
+		cookies []*http.Cookie
+	}
+
+	req := args{
+		cookies: []*http.Cookie{
+			{
+				Name:  "SID",
+				Value: "tes",
+			},
+		},
+	}
+
+	tests := []struct {
+		name    string
+		mock    func()
+		args    args
+		wantErr error
+		want    jwt.MapClaims
+	}{
+		{
+			name: "cookie not found",
+			args: args{
+				cookies: []*http.Cookie{
+					{
+						Value: "tes",
+					},
+				},
+			},
+			wantErr: errors.New("cookie not found"),
+		},
+		{
+			name:    "fail JwtParse",
+			args:    req,
+			wantErr: errors.New("err JwtParse"),
+			mock: func() {
+				repoMock.
+					On("JwtParse", "tes").
+					Return(nil, errors.New("err JwtParse")).
+					Once()
+			},
+		},
+		{
+			name: "success",
+			args: req,
+			mock: func() {
+				repoMock.
+					On("JwtParse", "tes").
+					Return(jwt.MapClaims{
+						"a": "b",
+					}, nil).
+					Once()
+			},
+			want: jwt.MapClaims{
+				"a": "b",
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		u := usecase{
+			repository: repoMock,
+		}
+
+		t.Run(tt.name, func(t *testing.T) {
+			if tt.mock != nil {
+				tt.mock()
+			}
+
+			got, err := u.DecodeJwt(tt.args.cookies)
+			if !util.SameErrorMessage(err, tt.wantErr) {
+				t.Errorf("DecodeJwt test failed. wantErr: %+v, gotErr: %+v", tt.wantErr, err)
+			}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("DecodeJwt test failed. want: %+v, got: %+v", tt.want, got)
 			}
 		})
 	}

@@ -12,3 +12,11 @@ func (r *repository) JwtNew(claim jwt.MapClaims) *jwt.Token {
 func (r *repository) JwtSign(token *jwt.Token) (string, error) {
 	return token.SignedString([]byte(constant.JwtSecret))
 }
+
+func (r *repository) JwtParse(token string) (claims jwt.MapClaims, err error) {
+	_, err = jwt.ParseWithClaims(token, &claims, func(token *jwt.Token) (interface{}, error) {
+		return []byte(constant.JwtSecret), nil
+	})
+
+	return
+}

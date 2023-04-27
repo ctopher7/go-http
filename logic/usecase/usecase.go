@@ -13,4 +13,5 @@ type Usecase interface {
 	UserRegister(ctx context.Context, user model.User) (err error)
 	NewLoan(ctx context.Context, amount float64, terms int, userId int64) (err error)
 	DecodeJwt(cookies []*http.Cookie) (claims jwt.MapClaims, err error)
+	ApproveLoan(ctx context.Context, loanId int64) (err error)
 }

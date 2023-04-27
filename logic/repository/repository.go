@@ -20,4 +20,6 @@ type Repository interface {
 	BcryptGenerateHash(password []byte) ([]byte, error)
 	InsertLoan(ctx context.Context, tx *sql.Tx, loan model.Loan) (id int64, err error)
 	InsertRepayment(ctx context.Context, tx *sql.Tx, repayment model.Repayment) (id int64, err error)
+	JwtParse(token string) (claims jwt.MapClaims, err error)
+	UpdateLoan(ctx context.Context, tx *sql.Tx, loan model.Loan) (err error)
 }

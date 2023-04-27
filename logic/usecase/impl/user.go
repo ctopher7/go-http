@@ -75,9 +75,5 @@ func (u *usecase) DecodeJwt(cookies []*http.Cookie) (claims jwt.MapClaims, err e
 		return
 	}
 
-	_, err = jwt.ParseWithClaims(tokenStr, &claims, func(token *jwt.Token) (interface{}, error) {
-		return []byte(constant.JwtSecret), nil
-	})
-
-	return
+	return u.repository.JwtParse(tokenStr)
 }

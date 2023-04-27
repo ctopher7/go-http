@@ -18,8 +18,8 @@ func (u *usecase) NewLoan(ctx context.Context, amount float64, terms int, userId
 	defer u.repository.RollbackTx(tx)
 
 	loanId, err := u.repository.InsertLoan(ctx, tx, model.Loan{
-		UserId: userId,
-		Amount: amount,
+		UserId: &userId,
+		Amount: &amount,
 		Status: constant.LoanStatusPending,
 	})
 	if err != nil {
@@ -57,6 +57,25 @@ func (u *usecase) NewLoan(ctx context.Context, amount float64, terms int, userId
 			return
 		}
 
+	}
+
+	err = u.repository.CommitTx(tx)
+	return
+}
+
+func (u *usecase) ApproveLoan(ctx context.Context, loanId int64) (err error) {
+	tx, err := u.repository.BeginTx(ctx)
+	if err != nil {
+		return
+	}
+	defer u.repository.RollbackTx(tx)
+
+	err = u.repository.UpdateLoan(ctx, tx, model.Loan{
+		Id:     loanId,
+		Status: constant.LoanStatusApproved,
+	})
+	if err != nil {
+		return
 	}
 
 	err = u.repository.CommitTx(tx)

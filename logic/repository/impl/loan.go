@@ -25,3 +25,21 @@ func (r *repository) InsertLoan(ctx context.Context, tx *sql.Tx, loan model.Loan
 
 	return
 }
+
+func (r *repository) UpdateLoan(ctx context.Context, tx *sql.Tx, loan model.Loan) (err error) {
+	query := `
+		UPDATE
+			loans
+		SET
+			amount = COALESCE($1,amount), 
+			status = COALESCE($2,status), 
+			user_id = COALESCE($3,user_id),
+			updated_at = $4
+		WHERE
+			id = $5
+	`
+
+	_, err = tx.ExecContext(ctx, query, loan.Amount, loan.Status, loan.UserId, time.Now(), loan.Id)
+
+	return
+}
