@@ -43,6 +43,7 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(model.HttpRes{
 		Message: "success",
 	})
+	return
 }
 
 func (h *Handler) Register(w http.ResponseWriter, r *http.Request) {

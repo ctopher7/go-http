@@ -170,7 +170,7 @@ func (h *Handler) GetLoan(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
-	json.NewEncoder(w).Encode(model.HttpRes{
+	json.NewEncoder(w).Encode(model.HttpResLoan{
 		Message: "success",
 		Data:    got,
 	})
