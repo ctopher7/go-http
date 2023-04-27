@@ -7,7 +7,7 @@ Created by Christopher Tok for the use of Aspire job application.
 - Apple Silicon (arm64)
 
 ## Pre-requisites
-- Internet Connection (for downloading docker images)
+- Latest Go
 - SQL database (I used postgresql)
 - rest api client (curl/postman/insomnia) I included insomnia json for request collections
 
