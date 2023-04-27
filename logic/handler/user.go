@@ -17,7 +17,10 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 	var req model.User
 	err := json.NewDecoder(r.Body).Decode(&req)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(model.HttpRes{
+			Message: err.Error(),
+		})
 		return
 	}
 
@@ -25,7 +28,10 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 
 	sid, err := h.Usecase.UserLogin(ctx, req.Email, req.Password)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(model.HttpRes{
+			Message: err.Error(),
+		})
 		return
 	}
 
@@ -45,7 +51,10 @@ func (h *Handler) Register(w http.ResponseWriter, r *http.Request) {
 	var req model.User
 	err := json.NewDecoder(r.Body).Decode(&req)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(model.HttpRes{
+			Message: err.Error(),
+		})
 		return
 	}
 
@@ -53,7 +62,10 @@ func (h *Handler) Register(w http.ResponseWriter, r *http.Request) {
 
 	err = h.Usecase.UserRegister(ctx, req)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(model.HttpRes{
+			Message: err.Error(),
+		})
 		return
 	}
 

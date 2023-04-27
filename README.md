@@ -8,17 +8,22 @@ Created by Christopher Tok for the use of Aspire job application.
 
 ## Pre-requisites
 - Internet Connection (for downloading docker images)
-- Docker
-- Make
+- SQL database (I used postgresql)
 - rest api client (curl/postman/insomnia) I included insomnia json for request collections
-- golangci-lint
 
 ## How to use
 - run ``` go run main.go development migrate ``` for db migration
-- run ``` go run main.go development seed ``` for seeding admin data
+- run ``` go run main.go development seed ``` for seed admin data (email: admin@admin.com, password: admin)
 - run ``` go run main.go development server ```
 - connect to ``` localhost:8000 ``` using your rest api client
-- run ```golangci-lint run .``` to see golangci lint result
+
+### API
+- register (POST /user/register)
+- login (POST /user/login)
+- new loan (POST /loan)
+- approve loan (PUT /loan/approve) , admin only
+- pay loan (POST /loan/pay)
+- get loan (GET /loan)
 
 ## Architecture
 repo architecture:
@@ -28,7 +33,6 @@ repo architecture:
 - Usecase (layer for business logic, consists of repository)
 - Repository (wrapper for other library, no unit test because dependencies not mockable)
  
-
 ## Experiences with tech stacks
 - Go: ~3 years
 - Postgresql: ~5 years

@@ -22,4 +22,8 @@ type Repository interface {
 	InsertRepayment(ctx context.Context, tx *sql.Tx, repayment model.Repayment) (id int64, err error)
 	JwtParse(token string) (claims jwt.MapClaims, err error)
 	UpdateLoan(ctx context.Context, tx *sql.Tx, loan model.Loan) (err error)
+	GetRepaymentByLoanId(ctx context.Context, loanId int64) (res []model.Repayment, err error)
+	GetLoanByIdAndUserId(ctx context.Context, loanId, userId int64) (res model.Loan, err error)
+	UpdateRepayment(ctx context.Context, tx *sql.Tx, repayment model.Repayment) (err error)
+	GetLoanByUserId(ctx context.Context, userId int64) (res []model.Loan, err error)
 }

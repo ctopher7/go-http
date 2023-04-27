@@ -39,6 +39,18 @@ func Init(dep dependency.Dependency) {
 		handler: dep.Handler.ApproveLoan,
 	})
 
+	routes.register(routeConfig{
+		path:    "/loan/pay",
+		method:  "POST",
+		handler: dep.Handler.PayLoan,
+	})
+
+	routes.register(routeConfig{
+		path:    "/loan",
+		method:  "GET",
+		handler: dep.Handler.GetLoan,
+	})
+
 	routes.serve()
 }
 
