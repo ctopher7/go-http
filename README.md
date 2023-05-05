@@ -1,6 +1,4 @@
-# Mini Aspire challenge
-
-Created by Christopher Tok for the use of Aspire job application. 
+# Go http
 
 ## Dev environment
 - MacOS 11.2 Big Sur
@@ -33,7 +31,3 @@ repo architecture:
 - Handler (layer for serialization, deserialization, request validation. call usecase)
 - Usecase (layer for business logic, consists of repository)
 - Repository (wrapper for other library, no unit test because dependencies not mockable)
- 
-## Experiences with tech stacks
-- Go: ~3 years
-- Postgresql: ~5 years
